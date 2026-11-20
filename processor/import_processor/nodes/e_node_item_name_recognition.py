@@ -1,5 +1,6 @@
 import json
 from email import message
+from pathlib import Path
 from typing import List, Dict, Tuple
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -41,7 +42,15 @@ class NodeItemNameRecognition(BaseNode):
         print(f"item_name:{item_name}")
         # 4.回填数据（item_name -> chunks）
         self._step_4_update_chunks(state,chunks,item_name)
-
+        # 把新数据（带item_name)的重新输出到output文件夹下
+        # path = r"E:\AI Agent\g0525\output\H3C LA2608室内无线网关 用户手册-6W100-整本手册\H3C LA2608室内无线网关 用户手册-6W100-整本手册_new_chunks.json"
+        # with open(path, "w", encoding="utf-8") as f:
+        #     json.dump(
+        #         chunks,
+        #         f,
+        #         ensure_ascii=False,
+        #         indent=2
+        #     )
         # 5.主体名向量化(返回稠密稀疏向量)
         dense_vector, sparse_vector = self._step_5_generate_vectors(item_name)
         print(f"dense_vector:{dense_vector}")
