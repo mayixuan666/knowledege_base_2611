@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Dict
 
 from processor.import_processor.base import BaseNode
@@ -20,14 +21,14 @@ class NodeBGEEmbedding(BaseNode):
         chunks = self._step_1_validate_input(state)
         # 数据向量化
         output_data = self._step_2_generate_embeddings(chunks)
-        for item in output_data:
-            item_name = item.get("item_name")
-            print(f"item_name:{item_name}")
-            sparse_vector = item["sparse_vector"]
-            print(f"sparse_vector:{sparse_vector}")
+        # for item in output_data:
+        #     item_name = item.get("item_name")
+        #     print(f"item_name:{item_name}")
+        #     sparse_vector = item["sparse_vector"]
+        #     print(f"sparse_vector:{sparse_vector}")
         # 更新节点并返回结果
         state['chunks'] = output_data
-        path = r"E:\AI Agent\g0525\output\H3C LA2608室内无线网关 用户手册-6W100-整本手册\H3C LA2608室内无线网关 用户手册-6W100-整本手册_new_new_new_chunks.json"
+        path = f"{Path(state.get('md_path')).parent}/{state.get('file_title')}_new_new_new_chunks.json" #修改三次后的（三个new）
         with open(path, "w", encoding="utf-8") as f:
             json.dump(
                 output_data,

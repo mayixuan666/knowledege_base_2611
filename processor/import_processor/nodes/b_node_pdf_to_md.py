@@ -93,7 +93,8 @@ class NodePDFToMD(BaseNode):
             "files": [
                 {"name": pdf_path_obj.name}
             ],
-            "model_version": "vlm"
+            "model_version": "vlm",
+            "is_ocr": True
         }
         url = f"{base_url}/file-urls/batch"
         response = requests.post(url, headers=header, json=data)
