@@ -80,8 +80,8 @@ if __name__ =="__main__":
     setup_logging()
     workflow = KBImportWorkflow()
     # workflow_graph = workflow.graph
-    init_state = {"import_file_path": r"E:\AI Agent\g0525\input\华为显示器 B3-211H 用户指南-(NSN-21BZ,02,zh-cn).pdf"}
-    # for event in workflow.run(init_state, stream=True):
-    #     print(f"state: {event}")
+    init_state = {"import_file_path": r"E:\AI Agent\g0525\input\华为擎云W585 用户指南-(PGUV,KOS&UOS_01,zh-cn).pdf"}
+    for event in workflow.run(init_state, stream=True):
+        print(f"state: {event}")
     # final_state = workflow.run(init_state, stream=False)
     # print(json.dumps(final_state, ensure_ascii=False, indent=4))
