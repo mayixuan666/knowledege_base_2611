@@ -56,12 +56,12 @@ class NodeItemNameConfirm(NodeBase):
         align_result = {}
         if item_names:
             query_results = self._step_5_vectorize_and_query(item_names)
-            # print(f"milvus根据提取到的item_name的匹配结果")
-            # for query_result in query_results:
-            #     print(query_result)
+            print(f"milvus根据提取到的item_name的匹配结果")
+            for query_result in query_results:
+                print(query_result)
             align_result = self._step_6_align_item_names(query_results)  #返回一个相似度最高的结果
             # print(f"milvus根据提取到的item_name的匹配结果，并且经过了分数整理，高分：confirmed_item_names，低分：options")
-            # names_list = align_result["confirm_item_names"]
+            # names_list = align_result["confirmed_item_names"]
             # options = align_result["options"]
             # print(names_list)
             # print(options)
@@ -172,12 +172,12 @@ class NodeItemNameConfirm(NodeBase):
         options:List[Dict] = []
 
         for res in query_results:
-            extracted_name = (res.get("extracted_name","") or "").split()  #模型识别的商品名称
+            extracted_name = (res.get("extracted_name","") or "").strip()  #模型识别的商品名称
             matches = res.get("matches",[]) or []
             if not matches:
                 continue
             high_results = [m for m in matches if m.get("score",0) >= 0.8]
-            mid_results = [m for m in matches if m.get("score",0) >= 0.6]
+            mid_results = [m for m in matches if 0.8 > m.get("score",0) >= 0.6]
             #有高分则取高分，没有高分取中分段
             #########################################################################
             # 高于0.8：高度匹配，直接给item_name
@@ -207,7 +207,7 @@ class NodeItemNameConfirm(NodeBase):
 
 
         return{
-            "confirm_item_names":list(set(confirmed_item_names)),  # 确认后商品名称（>0.8分）
+            "confirmed_item_names":list(set(confirmed_item_names)),  # 确认后商品名称（>0.8分）
             "options":list(set(options))     # 低分商品名称(>0.6),用set是为了去重
         }
 
@@ -222,7 +222,7 @@ class NodeItemNameConfirm(NodeBase):
             # 更新MongoDB会话记录，将命中结果更新到与本次命中有关的所有会话中（更新所有历史记录的item_name)
             ids_to_update = []
             for msg in history:
-                if not msg.get("item_name"):
+                if not msg.get("item_names"):
                     mid = msg.get("_id")
                     if mid:
                         ids_to_update.append(str(mid))
@@ -232,16 +232,17 @@ class NodeItemNameConfirm(NodeBase):
             # 封装结果
             state["item_names"] = confirmed
             state["answer"] = ""
+            return state
         # 2.有备选
         # 封装结果
         if options:
             state["item_names"] = []
             options_str = "、".join(options)
             state["answer"] = f"您是想问以下哪个产品：{options_str}？请明确一下型号。"
-
+            return state
         # 3.没命中（<0.6）
         # 封装结果
-        if not confirmed or not options:
+        if not confirmed and not options:
             state["answer"] = "抱歉，未找到相关产品，请提供准确型号以便我为您查询。"
             state["item_names"] = []
         return state
@@ -250,7 +251,29 @@ class NodeItemNameConfirm(NodeBase):
         
         print("step8:写入历史会话，更新")
 
+        # 若会话状态中有助手答案（分支B/C），写入助手消息到历史
+        if state.get("answer"):
+            save_chat_message(
+                session_id=session_id,  # 会话ID，关联所属会话
+                role="assistant",  # 消息角色：助手
+                text=state["answer"],  # 消息内容：向用户确认的提示语/无结果提示语
+                rewritten_query="",  # 助手消息无需改写查询，设为空
+                item_names=state.get("item_names", [])  # 关联的商品名列表（分支B/C均为空）
+            )
 
+
+        # 强制更新本次用户原始问题的关联信息（核心：补充改写查询、商品名）
+        save_chat_message(
+            session_id=session_id,  # 会话ID，关联所属会话
+            role="user",  # 消息角色：用户
+            text=state["original_query"],  # 消息内容：用户原始查询
+            rewritten_query=rewritten_query,  # 补充step3改写后的完整问题
+            item_names=state.get("item_names", []),  # 补充关联的商品名列表
+            message_id=message_id  # 消息ID，指定更新已存在的用户消息（而非新增）
+        )
+
+        # 返回最终会话状态，供下游节点使用
+        return state
 
 
 
@@ -258,7 +281,7 @@ if __name__ == "__main__":
 
     # 初始化图状态
     init_state = {
-        "original_query": "B530这个玩应咋搞的啊？",
+        "original_query": "兄弟HAK180烫金机这个玩应咋搞的啊？",
         "session_id":123
     }
 

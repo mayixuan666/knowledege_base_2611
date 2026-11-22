@@ -3,6 +3,7 @@ from typing import Optional
 from dotenv import load_dotenv
 from langgraph.constants import END
 from langgraph.graph import StateGraph
+from requests import session
 
 from processor.query_processor.nodes.a_node_item_name_confirm import NodeItemNameConfirm
 from processor.query_processor.nodes.b_node_search_embedding import NodeSearchEmbedding
@@ -111,6 +112,9 @@ class KBQueryWorkflow:
 
 if __name__ == "__main__":
     workflow = KBQueryWorkflow()
-    response = workflow.run({"original_query":"哥们儿，H3C这个东东咋鼓捣上的啊"},stream=True)
-    print(response)
+    response = workflow.run({"original_query":"哥们儿，兄弟HAK180烫金机这个东东咋鼓捣上的啊?","session_id":"123"},stream=True)
+    # print(response)
+    # 测试stream流要循环，惰式生成器
+    for res in response:
+        print(res)
     # print(workflow.compile().get_graph().draw_ascii())
