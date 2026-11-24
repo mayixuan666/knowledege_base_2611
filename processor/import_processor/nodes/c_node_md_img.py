@@ -54,8 +54,8 @@ class NodeMDImg(BaseNode):
         new_md_file_name = self._step_5_backup_new_md_file(state['md_path'], new_md_content)
 
         # # 6.更新state
-        # state["md_content"] = new_md_content
-        # state["md_path"] = new_md_file_name
+        state["md_content"] = new_md_content
+        state["md_path"] = new_md_file_name
 
         return state
 
@@ -333,7 +333,7 @@ class NodeMDImg(BaseNode):
 if __name__ == '__main__':
     setup_logging()
     init_state = {
-        "md_path":r"E:\AI Agent\g0525\output\H3C LA2608室内无线网关 用户手册-6W100-整本手册\H3C LA2608室内无线网关 用户手册-6W100-整本手册.md",
+        "md_path":r"E:\AI Agent\g0525\output\华为擎云B530 用户指南-(PUCZ,Windows11_03,zh-cn)\华为擎云B530 用户指南-(PUCZ,Windows11_03,zh-cn).md",
         "md_content": None
     }
     node = NodeMDImg()

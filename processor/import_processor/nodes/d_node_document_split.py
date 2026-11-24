@@ -249,12 +249,12 @@ class NodeDocumentSplit(BaseNode):
 
 if __name__ == "__main__":
     node = NodeDocumentSplit()
-    with open(r"E:\AI Agent\g0525\output\H3C LA2608室内无线网关 用户手册-6W100-整本手册\H3C LA2608室内无线网关 用户手册-6W100-整本手册_new.md","r",encoding="utf-8") as f:
+    with open(r"E:\AI Agent\g0525\output\华为擎云B530 用户指南-(PUCZ,Windows11_03,zh-cn)\华为擎云B530 用户指南-(PUCZ,Windows11_03,zh-cn)_new.md","r",encoding="utf-8") as f:
         md_content = f.read()
     init_state = {
-        "md_path":r"E:\AI Agent\g0525\output\H3C LA2608室内无线网关 用户手册-6W100-整本手册\H3C LA2608室内无线网关 用户手册-6W100-整本手册_new.md",
+        "md_path":r"E:\AI Agent\g0525\output\华为擎云B530 用户指南-(PUCZ,Windows11_03,zh-cn)\华为擎云B530 用户指南-(PUCZ,Windows11_03,zh-cn)_new.md",
         "md_content": md_content,
-        "file_title":"H3C LA2608室内无线网关 用户手册-6W100-整本手册_new"
+        "file_title":"华为擎云B530 用户指南-(PUCZ,Windows11_03,zh-cn)_new"
     }
     process = node.process(init_state)
     print(f"切分节点执行流程{process}")
